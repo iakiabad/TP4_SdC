@@ -27,7 +27,7 @@ Trabajamos con un módulo de kernel que obtuvimos del repositorio:
 
 <https://gitlab.com/sistemas-de-computacion-unc/kenel-modules.git>
 
-Lo editamos para que al cargarlo, muestre el nombre de nuestro grupo en los registros del kernel. Lo compilamos para x86 y lo cross-compilamos para arm64. Luego lo cargamos en una raspberry pi emulada en qemu. Además, completamos los desafíos #1 y #2 propuestos en la consigna, junto a las actividades prácticas.
+Lo editamos para que al cargarlo, muestre el nombre de nuestro grupo en los registros del kernel. Lo compilamos para x86 y lo cross-compilamos para arm64. Luego lo cargamos en una Raspberry Pi  emulada en qemu. Además, completamos los desafíos #1 y #2 propuestos en la consigna, junto a las actividades prácticas.
 
 Todos los códigos, archivos e imágenes utilizados se encuentran en el repositorio de GitHub: <https://github.com/iakiabad/TP4_SdC>
 
@@ -35,11 +35,11 @@ Todos los códigos, archivos e imágenes utilizados se encuentran en el reposito
 
 ## Compilación cruzada
 
-Como mencionamos antes, en esta sección del TP nos dedicamos a compilar nuestro módulo de kernel para arm64 desde nuestra computadora con un procesador x86. Para ello, debimos primero emular una raspberry pi utilizando qemu. Utilizamos este instructivo para hacerlo: [Emulating a Raspberry Pi in QEMU | Interrupt](https://interrupt.memfault.com/blog/emulating-raspberry-pi-in-qemu).
+Como mencionamos antes, en esta sección del TP nos dedicamos a compilar nuestro módulo de kernel para arm64 desde nuestra computadora con un procesador x86. Para ello, debimos primero emular una Raspberry Pi utilizando QEMU. Utilizamos este instructivo para hacerlo: [Emulating a Raspberry Pi in QEMU | Interrupt](https://interrupt.memfault.com/blog/emulating-raspberry-pi-in-qemu).
 
 Para llevar a cabo la compilación cruzada, es necesario contar con los headers y archivos de configuración del kernel en el que se va a cargar el módulo (“To build external modules, you must have a prebuilt kernel available that contains the configuration and header files used in the build.” [Building External Modules — The Linux Kernel documentation](https://docs.kernel.org/6.1/kbuild/modules.html)).
 
-Para obtener los headers files había que conseguir el código fuente del kernel de la raspberrypi. Ejecutamos el comando `uname -r` en la raspberry emulada para obtener la versión exacta del kernel (6.1.21). Investigando en internet, encontramos un foro ([Kernel source of Raspberry PI OS](https://forums.raspberrypi.com/viewtopic.php?t=359468)) en el que un usuario informaba el commit y la rama exacta en la que se encontraba el código fuente de esa versión del kernel. Para obtenerlo ejecutamos: `git clone --depth=1 --branch 1.20230405 https://github.com/raspberrypi/linux`.
+Para obtener los headers files había que conseguir el código fuente del kernel de la Raspberry Pi. Ejecutamos el comando `uname -r` en la Raspberry Pi emulada para obtener la versión exacta del kernel (6.1.21). Investigando en internet, encontramos un foro ([Kernel source of Raspberry PI OS](https://forums.raspberrypi.com/viewtopic.php?t=359468)) en el que un usuario informaba el commit y la rama exacta en la que se encontraba el código fuente de esa versión del kernel. Para obtenerlo ejecutamos: `git clone --depth=1 --branch 1.20230405 https://github.com/raspberrypi/linux`.
 
 El archivo .config lo obtuvimos del dispositivo emulado, utilizando el protocolo SSH y el comando scp para transferirlo al sistema de archivos de la PC:
 
@@ -47,13 +47,13 @@ El archivo .config lo obtuvimos del dispositivo emulado, utilizando el protocolo
 scp -P 2222 pi@localhost:/home/pi/config.gz /home
 ```
 
-Luego, copiamos el archivo .config a la raíz del repositorio que contiene el código fuente del kernel de la raspberrypi:
+Luego, copiamos el archivo .config a la raíz del repositorio que contiene el código fuente del kernel de la Raspberry Pi:
 
 ```bash
 cp /home/config /home/iakiabad/linux/.config
 ```
 
-Paral llevar a cabo la compilación propiamente dicha, primero instalamos los paquetes necesarios, especificados en la documentación oficial de raspberrypi, para cross-compilar (<https://www.raspberrypi.com/documentation/computers/linux_kernel.html#building>):
+Paral llevar a cabo la compilación propiamente dicha, primero instalamos los paquetes necesarios, especificados en la documentación oficial de Raspberry Pi, para cross-compilar (<https://www.raspberrypi.com/documentation/computers/linux_kernel.html#building>):
 
 ```bash
 sudo apt install bc bison flex libssl-dev make libc6-dev libncurses5-dev
@@ -73,9 +73,9 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- modules_prepare
 
 Este comando prepara el árbol de código fuente del kernel para la compilación de módulos externos, utilizando el archivo .config y generando los archivos adicionales necesarios, sin tener que compilar el kernel entero.
 
-Solo entonces ejecutamos make all y utilizamos nuevamente el comando scp para transferir el módulo cargable .ko a la raspberry.
+Solo entonces ejecutamos make all y utilizamos nuevamente el comando scp para transferir el módulo cargable .ko a la Raspberry Pi.
 
-Finalmente, cargamos con éxito el módulo en la raspberry
+Finalmente, cargamos con éxito el módulo en la Raspberry Pi 
 
 ![Carga del módulo en la raspberry](compilacion_cruzada/capturas/cargar_modulo_en_raspberry.png)
 
@@ -98,6 +98,15 @@ Es una herramienta que intercepta la instalación de software compilado desde fu
 Utilizamos `checkinstall` para empaquetar un *hello world* escrito en C y compilado con gcc:
 
 ![Creación y compilación del hello world](desafio_%231/capturas/crear_y_compilar_hello_world.png)
+
+Para instalar el paquete, en otra PC usamos el comando sudo apt install
+
+![instalacion de paquete](desafio_%231/capturas/Instalacion_paquete_valen.png)
+
+El paquete se instaló correctamente
+
+
+
 
 *Figura 4 — Creación del archivo `hello_world.c`, compilación con `gcc` y ejecución del binario.*
 
@@ -156,6 +165,11 @@ De esta manera, `/dev` proporciona una interfaz de acceso a los dispositivos y l
 Se observa que el modinfo de nuestro módulo carece de varios campos, en comparacion con el de des_generic.ko. Esto se debe principalmente a que nuestro módulo no está firmado y no tiene alias asignados.
 
 **2. Listar los módulos cargados en las PCs de todos los integrantes del grupo. Subir las salidas al repositorio y hacer un `diff` en el informe. Explicar las diferencias.**
+
+Módulos cargados PC Valen: 185 
+Módulos cargados PC Iñaki: 139
+	
+Las diferencias se deben principalmente a tener procesadores de fabricantes distintos (AMD e Intel) que no utilizan los mismos controladores/adaptadores. Además la PC de Valen tiene cargados módulos adicionales como zfs, xfs, ufs, hfsplus, jfs y qnx4 que permiten manejar una mayor variedad de sistemas de archivos.
 
 **3. ¿Cuáles módulos están disponibles pero no cargados? ¿Qué ocurre cuando el driver de un dispositivo no está disponible?**
 
